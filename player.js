@@ -7,6 +7,7 @@ class Player extends InnerPlayer {
     constructor(songs) {
         super(songs)
     }
+    
 
     increaseVolume() {
         super.setVolume(
@@ -28,25 +29,28 @@ class Player extends InnerPlayer {
         );
     }
 
-    // 0.6.1 版本没有该方法。。github却有, 加上去执行不了，等待解决。。。
-    // previous() {
-    //     let list = this._list;
-    //     let current = this.playing;
-    //     let previousIndex = this.options.shuffle ?
-    //         chooseRandom(_.difference(list, [current._id])) :
-    //         current._id - 1
+    toggleRandom() {
+        this.options.shuffle = !this.options.shuffle;
+        return this;
+    }
 
-    //     if (previousIndex < 0) {
-    //         this.emit('error', 'No previous song was found')
-    //         this.emit('finish', current)
-    //         return this;
-    //     }
+    previous() {
+        var currentId = this.playing._id;
+        if (currentId === 0) {
+            currentId = this._list.length;
+        }
+        this.stop();
+        this.play(currentId - 1);
+        return this;
+    }
 
-    //     this.stop()
-    //     this.play(previousIndex)
 
-    //     return this
-    // }
+    next() {
+        super.stop();
+        super.next();
+        return this;
+    }
+
 
 }
 

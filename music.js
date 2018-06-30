@@ -38,7 +38,7 @@ class Music {
     parseUrls(urlInfo) {
         return R.pipe(
             R.reject(
-                R.or(
+                R.either(
                     R.equals(false),
                     R.pathEq(['status'], false),
                 )

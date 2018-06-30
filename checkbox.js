@@ -18,10 +18,10 @@ class CheckBoxPlusPrompt extends Prompt {
         var header = this.opt.header;
         var footer = this.opt.footer;
         if (header && !_.isString(header)) {
-            throw new Error('Param head must be a string')
+            throw new Error('CheckBoxPlus Param head must be a string');
         }
         if (footer && !_.isString(footer)) {
-            throw new Error('Param footer must be a string')
+            throw new Error('CheckBoxPlus Param footer must be a string');
         }
     }
 
@@ -41,18 +41,15 @@ class CheckBoxPlusPrompt extends Prompt {
             var events = self.events = observe(self.rl)
 
             // add 
+            // crrl/alt + q 全选
             events.AllKey = events.keypress.filter(({ key }) =>
                 key.name === 'a' && (key.ctrl || key.meta)
             ).share()
 
             // add 
+            // crrl/alt + i 反选
             events.InverseKey = events.keypress.filter(({ key }) =>
                 key.name === 'i' && (key.ctrl || key.meta)
-            ).share()
-
-            // add 
-            events.SearchKey = events.keypress.filter(({ key }) =>
-                key.name === 'q' && (key.ctrl || key.meta)
             ).share()
 
 
@@ -78,24 +75,8 @@ class CheckBoxPlusPrompt extends Prompt {
                 events.keypress
                     // add 过滤掉 backsapce 以便缓存 input
                     .do(({ key }) => { if (key && key.name === 'backspace') { self.backspace = true; } })
-                    .do(({ key }) => {
-                        if (key.name === 'up' || key.name === 'k' || (key.name === 'p' && key.ctrl)) {
-                            self.UpDown = true;
-                        }
-                        if (key.name === 'down' || key.name === 'j' || (key.name === 'n' && key.ctrl)) {
-                            self.UpDown = true;
-                        }
-                        if (key.name === 'space'){
-                            self.UpDown = true;
-                        }
-                        if (key.name === 'a' && (key.ctrl || key.meta)){
-                            self.UpDown = true;
-                        }
-                        if (key.name === 'i' && (key.ctrl || key.meta)){
-                            self.UpDown = true;
-                        }
-                    })
                     .takeUntil(validation.success).forEach(self.onKeypress.bind(self));
+
                 // add ctrl + a / alt + a / ctrl + i/ alt + i
                 events.AllKey.takeUntil(validation.success).forEach(self.onAllKey.bind(self));
                 events.InverseKey.takeUntil(validation.success).forEach(self.onInverseKey.bind(self));
@@ -326,12 +307,8 @@ class CheckBoxPlusPrompt extends Prompt {
         // add 
         if (key && key.name !== 'backspace') {
             this.cacheQuery = this.rl.line;
-
         }
-
-        this.executeSource();
-        this.render();
-
+        super.onKeypress();
     }
 
     executeSource() {
@@ -343,7 +320,7 @@ class CheckBoxPlusPrompt extends Prompt {
         this.rl.line = _.trim(this.rl.line);
 
         // add 
-        if (this.rl.line === this.lastQuery && this.UpDown ) {
+        if (this.rl.line === this.lastQuery && !this.filterSearch) {
             return;
         }
 
@@ -395,7 +372,6 @@ class CheckBoxPlusPrompt extends Prompt {
             });
 
             // Reset the pointer to select the first choice
-            self.UpDown = false;
             self.pointer = 0;
             self.render();
             self.default = null;
@@ -407,27 +383,25 @@ class CheckBoxPlusPrompt extends Prompt {
 
     }
 
-    // onUpKey() {
+    // add
+    toggleSearch() {
+        this.filterSearch = !this.filterSearch;
+    }
 
-    //     // var len = this.choices.realLength;
-    //     // this.pointer = this.pointer > 0 ? this.pointer - 1 : len - 1;
-    //     // this.render();
-    //     super.onUpKey();
-    // }
-
-    // /**
-    //  * A callback function for the event:
-    //  * When the user press `Down` key
-    //  */
-    // onDownKey() {
-
-    //     // var len = this.choices.realLength;
-    //     // this.pointer = this.pointer < len - 1 ? this.pointer + 1 : 0;
-    //     // this.render();
-    //     super.onDownKey();
-
-    // }
-
+    // add 
+    // 监听  ctrl + q 事件
+    listenSearch(music) {
+        var self = this;
+        this.events.keypress
+            .filter(({ key }) => key.name === 'q' && (key.meta || key.ctrl))
+            .share()
+            .forEach((x) => {
+                music.switchSource();
+                self.toggleSearch();
+                self.onKeypress(x)
+                self.toggleSearch();
+            })
+    }
 }
 
 module.exports = CheckBoxPlusPrompt;

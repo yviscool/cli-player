@@ -7,6 +7,7 @@ var Music = require('./music');
 var Event = require('./event');
 
 var chalk = require('chalk');
+var figures = require('figures');
 var inquirer = require('inquirer');
 inquirer.registerPrompt('checkbox-plus', require('./checkbox'));
 
@@ -25,6 +26,8 @@ class Inquirer {
             searchable: true,
             source: this.feachSongs.bind(this),
             answer: this.handleSelection.bind(this),
+            footer: this.footer(),
+            header: this.header(),
         }
         this.params = [this.checkBoxPlusParam];
         this.music = music;
@@ -37,7 +40,6 @@ class Inquirer {
         this.listenQuery(promise.ui.activePrompt);
         return promise
             .then(R.path(['song']))
-            .catch(console.log)
     }
 
     feachSongs(answer, input = '') {
@@ -47,7 +49,8 @@ class Inquirer {
             .resolve(music.search.call(music, input || this.defaultInput))
             .then(msg => {
 
-                if (!msg) {
+                // 超时
+                if (msg.status === false) {
                     return [];
                 }
 
@@ -72,7 +75,16 @@ class Inquirer {
                 return self.songs.getSelection();
 
             })
-            .catch(console.log)
+    }
+
+    validate() { }
+
+    header() {
+        return `${chalk.white("ctrl + q")} 切换搜索引擎 ${chalk.white("space")} 选中`;
+    }
+
+    footer() {
+        return ` ${figures.pointer}${figures.pointer} 按${chalk.white(figures.arrowUp)} ${chalk.white(figures.arrowDown)} 键移动`;
     }
 
     handleSelection(selection) {
@@ -81,18 +93,8 @@ class Inquirer {
 
     // 监听 ctrl+q 事件
     listenQuery(prompt) {
+        prompt.listenSearch(this.music);
 
-        var { events } = prompt;
-
-        var music = this.music;
-
-        events.keypress
-            .filter(({ key }) => key.name === 'q' && (key.meta || key.ctrl))
-            .share()
-            .forEach((x) => {
-                music.switchSource();
-                prompt.onKeypress.call(prompt, x)
-            })
     }
 
     parseUrls(urlInfo) {
@@ -110,6 +112,8 @@ class Inquirer {
 
     var ids = await inquirer.prompt();
 
+    console.log(ids);
+
     var urlInfo = await Promise.all(R.map(id => music.getRealUrl(id).catch(() => false), ids));
 
     var urls = inquirer.parseUrls(urlInfo);
@@ -118,9 +122,19 @@ class Inquirer {
 
     player.play() && new Event(player).listenKeyPress();
 
-})().catch(console.log)
+    player.on('error', err => {
+        if (err.code === 'ETIMEDOUT') {
+            console.log('timeout');
+            return;
+        }
+        console.log('出错了')
+        console.error(err)
+    })
+
+})().catch(console.error)
 
 
 process.on('uncaughtException', (err) => {
+    console.log('全局');
     console.log(err);
 })
