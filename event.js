@@ -2,8 +2,8 @@
 var readline = require('readline');
 var MuteStream = require('mute-stream');
 
-var { fromEvent } = require('rxjs').Observable;
-var { filter, map, tap } = require('rxjs').operators;
+var { fromEvent } = require('rxjs');
+var { filter, map, tap } = require('rxjs/operators');
 
 var R = require('ramda');
 

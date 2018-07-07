@@ -10,9 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "inquirer": "^5.1.0",
-    "inquirer-checkbox-plus-prompt": "^1.0.1",
-    "@suen/music-api": "git+https://github.com/sunzongzheng/musicApi.git",
+    "@suen/music-api": "^1.0.13",
+    "inquirer": "^6.0.0",
+    "inquirer-checkbox-plus": "^0.9.8",
     "player": "^0.6.1",
     "ramda": "^0.25.0"
   }
