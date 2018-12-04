@@ -144,6 +144,7 @@ class Inquirer {
             .forEach((x) => {
                 music.switchSource();
                 prompt.toggleSearch();
+                prompt.checkedChoices.length = 0;
                 prompt.onKeypress(x)
                 prompt.toggleSearch();
             })
@@ -175,7 +176,6 @@ class Inquirer {
             console.log('timeout');
             return;
         }
-        console.log('出错了')
         console.error(err)
     })
 
@@ -183,6 +183,5 @@ class Inquirer {
 
 
 process.on('uncaughtException', (err) => {
-    console.log('全局');
-    console.log(err);
+    console.error(err);
 })

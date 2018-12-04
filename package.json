@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@suen/music-api": "^1.1.4",
+    "@suen/music-api": "^1.1.5",
     "inquirer": "^6.0.0",
     "inquirer-checkbox-plus": "^1.0.1",
     "player": "^0.6.1",
