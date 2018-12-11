@@ -5,7 +5,7 @@ var MuteStream = require('mute-stream');
 var { fromEvent } = require('rxjs');
 var { filter, map, tap } = require('rxjs/operators');
 
-var R = require('ramda');
+var { pipe, path, when, equals, either } = require('ramda');
 
 
 class Event {
@@ -37,15 +37,15 @@ class Event {
                 tap(this.pauseKey()),
                 tap(this.increseKey()),
                 tap(this.decreaseKey()),
-        )
+            )
             .forEach(x => { })
     }
 
     hKey() {
-        return R.pipe(
-            R.path(['key', 'name']),
-            R.when(
-                R.equals('h'),
+        return pipe(
+            path(['key', 'name']),
+            when(
+                equals('h'),
                 // to do 
                 () => { this.player.previous() }
             )
@@ -53,50 +53,50 @@ class Event {
     }
 
     lKey() {
-        return R.pipe(
-            R.path(['key', 'name']),
-            R.when(
-                R.equals('l'),
+        return pipe(
+            path(['key', 'name']),
+            when(
+                equals('l'),
                 () => { this.player.next() },
             )
         )
     }
 
     stopKey() {
-        return R.pipe(
-            R.path(['key', 'name']),
-            R.when(
-                R.equals('x'),
+        return pipe(
+            path(['key', 'name']),
+            when(
+                equals('x'),
                 () => { this.player.pause() },
             )
         )
     }
 
     pauseKey() {
-        return R.pipe(
-            R.path(['key', 'name']),
-            R.when(
-                R.equals('X'),
+        return pipe(
+            path(['key', 'name']),
+            when(
+                equals('X'),
                 () => { this.player.stop() },
             )
         )
     }
 
     increseKey() {
-        return R.pipe(
-            R.path(['key', 'sequence']),
-            R.when(
-                R.either(R.equals(','), R.equals('[')),
+        return pipe(
+            path(['key', 'sequence']),
+            when(
+                either(equals(','), equals('[')),
                 () => { this.player.decreaseVolume() },
             )
         )
     }
 
     decreaseKey() {
-        return R.pipe(
-            R.path(['key', 'sequence']),
-            R.when(
-                R.either(R.equals('.'), R.equals(']')),
+        return pipe(
+            path(['key', 'sequence']),
+            when(
+                either(equals('.'), equals(']')),
                 () => { this.player.increaseVolume() },
             )
         )

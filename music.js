@@ -1,5 +1,5 @@
 var MusicApi = require('@suen/music-api');
-var R = require('ramda');
+var { pipe, reject, either, equals, pathEq, path, ifElse, test, concat, identity, map } = require('ramda');
 
 class Music {
 
@@ -31,24 +31,38 @@ class Music {
     switchSource() {
         var { sources } = this;
         var tempSource = sources.shift();
-        sources.push(tempSource)
+        sources.push(tempSource);
         this.currentSource = this.sources[0];
     }
 
+    /**
+     * 获取 mp3 的播放地址
+     */
+    getMp3Url(musicIds) {
+        return Promise.all(map(
+            (id) => this.getRealUrl(id).catch(() => false), musicIds
+        )).then(this.parseUrls.bind(this));
+    }
+
+
+    /**
+     *  解析 url 
+     * @param {*} urlInfo 
+     */
     parseUrls(urlInfo) {
-        return R.pipe(
-            R.reject(
-                R.either(
-                    R.equals(false),
-                    R.pathEq(['status'], false),
+        return pipe(
+            reject(
+                either(
+                    equals(false),
+                    pathEq(['status'], false),
                 )
             ),
-            R.map(R.pipe(
-                R.path(['data', 'url']),
-                R.ifElse(
-                    R.test(/^\//),
-                    R.concat('http:'), // xiami 要加上 http
-                    R.identity,
+            map(pipe(
+                path(['data', 'url']),
+                ifElse(
+                    test(/^\//),
+                    concat('http:'), // xiami 要加上 http
+                    identity,
                 )
             )),
         )(urlInfo)

@@ -11,8 +11,9 @@
   "license": "ISC",
   "dependencies": {
     "@suen/music-api": "^1.1.5",
+    "debug": "^4.1.0",
     "inquirer": "^6.0.0",
-    "inquirer-checkbox-plus": "^1.0.1",
+    "inquirer-checkbox-plus": "^1.0.2",
     "player": "^0.6.1",
     "ramda": "^0.25.0"
   }
