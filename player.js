@@ -7,21 +7,18 @@ var BasePlayer = require('player');
 
 var debug = require('debug')('player');
 
-var { pipe, path, add, ifElse, gt, always, identity, subtract, __ } = require('ramda');
+var { pipe, path, add, ifElse, gt, lt, always, identity, subtract, __ } = require('ramda');
 
 class InnerPlayer extends BasePlayer {
 
     constructor(songs) {
         super(songs);
         this.rl = new Event(this);
-    }
 
-    play() {
         // 开始播放
         super.play();
         // 监听键盘事件
         this.rl.listenKeyPress();
-        //
     }
 
     /**
@@ -101,13 +98,7 @@ class Player {
 
         var innerPlayer = new this.InnerPlayer(urls);
 
-        innerPlayer.play();
-
         innerPlayer.on('error', err => {
-            if (err.code === 'ETIMEDOUT') {
-                console.error('timeout');
-                return;
-            }
             console.error(err)
         })
     }
